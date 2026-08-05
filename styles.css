@@ -275,7 +275,7 @@ body {
 }
 
 .shift-text {
-    font-size: 8px;
+    font-size: 6px;
     font-weight: 700;
     text-align: center;
     padding-top: 2px;
@@ -295,6 +295,11 @@ body {
 .shift-off {
     background: linear-gradient(135deg, #ddd 0%, #bbb 100%);
     color: #666;
+}
+
+.shift-creche {
+    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+    color: #4a2c2a;
 }
 
 /* Modal Styles */
