@@ -297,6 +297,11 @@ body {
     color: #666;
 }
 
+.shift-creche {
+    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+    color: #4a2c2a;
+}
+
 /* Modal Styles */
 .modal {
     display: none;

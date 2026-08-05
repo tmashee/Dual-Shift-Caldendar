@@ -16,8 +16,10 @@ class DualShiftCalendar {
         this.shiftNames = {
             '1': 'Intel',
             '2': 'Pfizer',
+            '3': 'Creche',
             'shift1': 'Intel',
-            'shift2': 'Pfizer'
+            'shift2': 'Pfizer',
+            'shift3': 'Creche'
         };
         
         // Customizable Shift 1 Properties
@@ -46,7 +48,8 @@ class DualShiftCalendar {
         // Toggle states for shift visibility
         this.shiftVisibility = {
             shift1: true,
-            shift2: true
+            shift2: true,
+            shift3: true
         };
         
         // Data persistence
@@ -188,7 +191,12 @@ class DualShiftCalendar {
             const newPreferences = localStorage.getItem(this.storageKey + '_preferences');
             if (newPreferences) {
                 const prefs = JSON.parse(newPreferences);
-                this.shiftVisibility = prefs.shiftVisibility || { shift1: true, shift2: true };
+                this.shiftVisibility = {
+                    shift1: true,
+                    shift2: true,
+                    shift3: true,
+                    ...(prefs.shiftVisibility || {})
+                };
                 
                 // Load customizable settings if they exist
                 if (prefs.shift1Pattern) this.shift1Pattern = prefs.shift1Pattern;
@@ -220,7 +228,7 @@ class DualShiftCalendar {
         } catch (e) {
             console.warn('Failed to load preferences:', e);
             // Use defaults if loading fails
-            this.shiftVisibility = { shift1: true, shift2: true };
+            this.shiftVisibility = { shift1: true, shift2: true, shift3: true };
             this.dayOverrides = new Map();
         }
 
@@ -308,6 +316,7 @@ class DualShiftCalendar {
         const settingsBtn = document.getElementById('settingsBtn');
         const toggleShift1 = document.getElementById('toggleShift1');
         const toggleShift2 = document.getElementById('toggleShift2');
+        const toggleShift3 = document.getElementById('toggleShift3');
         
         prevBtn.addEventListener('click', () => this.previousYear());
         nextBtn.addEventListener('click', () => this.nextYear());
@@ -318,6 +327,7 @@ class DualShiftCalendar {
         // Toggle button functionality
         toggleShift1.addEventListener('click', () => this.toggleShiftVisibility('shift1'));
         toggleShift2.addEventListener('click', () => this.toggleShiftVisibility('shift2'));
+        toggleShift3.addEventListener('click', () => this.toggleShiftVisibility('shift3'));
         
         // Add keyboard navigation
         document.addEventListener('keydown', (e) => {
@@ -326,6 +336,7 @@ class DualShiftCalendar {
             if (e.key === 'Home' || (e.key === 'h' && !e.ctrlKey && !e.metaKey)) this.goToToday();
             if (e.key === '1') this.toggleShiftVisibility('shift1');
             if (e.key === '2') this.toggleShiftVisibility('shift2');
+            if (e.key === '3') this.toggleShiftVisibility('shift3');
         });
     }
     
@@ -396,6 +407,19 @@ class DualShiftCalendar {
             toggleShift2.classList.remove('active');
             toggleShift2.setAttribute('aria-pressed', 'false');
             icon2.className = 'fas fa-eye-slash toggle-icon';
+        }
+
+        // Update Shift 3 button
+        const toggleShift3 = document.getElementById('toggleShift3');
+        const icon3 = toggleShift3.querySelector('.toggle-icon');
+        if (this.shiftVisibility.shift3) {
+            toggleShift3.classList.add('active');
+            toggleShift3.setAttribute('aria-pressed', 'true');
+            icon3.className = 'fas fa-eye toggle-icon';
+        } else {
+            toggleShift3.classList.remove('active');
+            toggleShift3.setAttribute('aria-pressed', 'false');
+            icon3.className = 'fas fa-eye-slash toggle-icon';
         }
     }
     
@@ -585,6 +609,11 @@ class DualShiftCalendar {
             const shift2 = this.createShiftElement(shifts.shift2, '2', date);
             shiftsContainer.appendChild(shift2);
         }
+
+        if (this.shiftVisibility.shift3 && shifts.shift3 !== this.shiftTypes.OFF) {
+            const shift3 = this.createShiftElement(shifts.shift3, '3', date);
+            shiftsContainer.appendChild(shift3);
+        }
         
         dayCell.appendChild(shiftsContainer);
         
@@ -633,8 +662,9 @@ class DualShiftCalendar {
         
         const shift1Text = this.shiftVisibility.shift1 ? `${this.getShiftName('1')} ${this.getShiftDisplayText(shifts.shift1)}` : '';
         const shift2Text = this.shiftVisibility.shift2 ? `${this.getShiftName('2')} ${this.getShiftDisplayText(shifts.shift2)}` : '';
+        const shift3Text = this.shiftVisibility.shift3 && shifts.shift3 !== this.shiftTypes.OFF ? `${this.getShiftName('3')} ${this.getShiftDisplayText(shifts.shift3)}` : '';
         
-        return `${dateStr}. ${shift1Text}${shift1Text && shift2Text ? ', ' : ''}${shift2Text}`;
+        return `${dateStr}. ${[shift1Text, shift2Text, shift3Text].filter(Boolean).join(', ')}`;
     }
     
     onDayClick(date, shifts) {
@@ -699,14 +729,16 @@ class DualShiftCalendar {
         // Calculate pattern-based shifts
         const patternShifts = {
             shift1: this.calculateShift1(date),
-            shift2: this.calculateShift2(date)
+            shift2: this.calculateShift2(date),
+            shift3: this.calculateShift3(date)
         };
         
         // Apply overrides if they exist
         if (override) {
             return {
                 shift1: override.shift1 !== undefined ? override.shift1 : patternShifts.shift1,
-                shift2: override.shift2 !== undefined ? override.shift2 : patternShifts.shift2
+                shift2: override.shift2 !== undefined ? override.shift2 : patternShifts.shift2,
+                shift3: patternShifts.shift3
             };
         }
         
@@ -818,6 +850,17 @@ class DualShiftCalendar {
 
         return shiftType;
     }
+
+    calculateShift3(date) {
+        const targetDate = this.normalizeUTCDate(date);
+        if (!targetDate) return this.shiftTypes.OFF;
+
+        const septemberStart = this.createUTCDate(targetDate.getUTCFullYear(), 8, 1);
+        if (targetDate < septemberStart) return this.shiftTypes.OFF;
+
+        const weekday = targetDate.getUTCDay();
+        return [1, 4, 5].includes(weekday) ? 'creche' : this.shiftTypes.OFF;
+    }
     
     getShiftDisplayText(shiftType) {
         switch (shiftType) {
@@ -827,6 +870,8 @@ class DualShiftCalendar {
                 return 'NIGHT';
             case this.shiftTypes.OFF:
                 return 'OFF';
+            case 'creche':
+                return 'CRECHE';
             default:
                 return 'ERROR';
         }
