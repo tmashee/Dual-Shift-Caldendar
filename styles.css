@@ -9,6 +9,7 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     min-height: 100vh;
+    min-height: 100dvh;
     padding: 10px;
 }
 
@@ -20,7 +21,8 @@ body {
     border-radius: 15px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    height: 95vh;
+    height: calc(100vh - 20px);
+    height: calc(100dvh - 20px);
     display: flex;
     flex-direction: column;
 }
@@ -38,6 +40,8 @@ body {
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    flex-wrap: wrap;
+    row-gap: 8px;
 }
 
 .toggle-section {
@@ -45,6 +49,8 @@ body {
     gap: 10px;
     flex: 1;
     justify-content: flex-start;
+    flex-wrap: wrap;
+    min-width: 0;
 }
 
 .nav-section {
@@ -53,12 +59,14 @@ body {
     gap: 15px;
     flex: 1;
     justify-content: center;
+    min-width: 0;
 }
 
 .home-section {
     flex: 1;
     display: flex;
     justify-content: flex-end;
+    min-width: 0;
 }
 
 .nav-btn {
@@ -1029,6 +1037,7 @@ body {
         flex-direction: column;
         gap: 8px;
         padding: 2px 0;
+        align-items: stretch;
     }
     
     .toggle-section,
@@ -1036,11 +1045,13 @@ body {
     .home-section {
         flex: none;
         justify-content: center;
+        width: 100%;
     }
     
     .toggle-section {
         gap: 6px;
         order: 2;
+        flex-wrap: wrap;
     }
     
     .nav-section {
@@ -1050,6 +1061,7 @@ body {
     
     .home-section {
         order: 3;
+        justify-content: center;
     }
     
     .year-display {
