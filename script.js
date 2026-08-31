@@ -610,7 +610,7 @@ class DualShiftCalendar {
             shiftsContainer.appendChild(shift2);
         }
 
-        if (this.shiftVisibility.shift3 && shifts.shift3 !== this.shiftTypes.OFF) {
+        if (this.shiftVisibility.shift3) {
             const shift3 = this.createShiftElement(shifts.shift3, '3', date);
             shiftsContainer.appendChild(shift3);
         }
@@ -859,7 +859,7 @@ class DualShiftCalendar {
         if (targetDate < septemberStart) return this.shiftTypes.OFF;
 
         const weekday = targetDate.getUTCDay();
-        return [1, 4, 5].includes(weekday) ? 'creche' : this.shiftTypes.OFF;
+        return [1, 2, 4].includes(weekday) ? 'creche' : this.shiftTypes.OFF;
     }
     
     getShiftDisplayText(shiftType) {
